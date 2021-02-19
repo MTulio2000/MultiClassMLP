@@ -30,7 +30,7 @@ private:
     void openDatabase(string path,vector<VectorXd> &in, vector<int> &out);
     void fit(string path);
 public:
-    MLP(vector<int> cfg,string path,double lr = 0.001,int epochs = 100000);
+    MLP(vector<int> cfg,string path,double lr = 0.001,int epochs = 100000,double minAccuracy = 0.8,double maxAccuracy = 0.9);
     int classify(VectorXd data);
 };
 
