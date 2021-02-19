@@ -13,14 +13,14 @@ The MLP class wait for this arguments:
 * Minimum accuracy;
 * Maximum accuracy;
 
-Example 1:
+#### Example 1:
 ``` C++
 //MLP *nn = new MLP(conf,path,lr,epochs,min,max);
 MLP *nn = new MLP({4,3,3},"iris.csv",0.001,1000,0.8,0.9);
 ```
 The configuration and the path to dataset are required, but the others aren't.
 
-Example 2:
+#### Example 2:
 ``` C++
 MLP *nn = new MLP({4,3,3},"iris.csv");
 ```
