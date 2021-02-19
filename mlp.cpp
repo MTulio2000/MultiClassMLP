@@ -1,7 +1,9 @@
 #include "mlp.h"
 
-MLP::MLP(vector<int> cfg,string path, double lr, int epochs)
+MLP::MLP(vector<int> cfg,string path, double lr, int epochs,double minAccuracy,double maxAccuracy)
 {
+    this->minAccuracy = minAccuracy;
+    this->maxAccuracy = maxAccuracy;
     this->learningRate = lr;
     this->epochs = epochs;
     initializevalues(cfg);
