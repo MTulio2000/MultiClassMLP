@@ -12,34 +12,37 @@ MLP::MLP(vector<int> cfg,string path, double lr, int epochs,double minAccuracy,d
 
 void MLP::fit(string path_file)
 {
-    vector<VectorXd> in;
-    vector<int> out;
-    VectorXd answer;
-    openDatabase(path_file,in,out);
-    int index,epochs = 0,at;
-    srand(time(NULL));
-    vector<int> randIndex;
-    double acc = accuracy(in,out);
+    openDatabase(path_file);
+    int index,epochs = 0;
+    double acc = accuracy();
+    cout << "Initial Accuracy: " << acc<<endl;
     while((acc<minAccuracy||acc>maxAccuracy)&&epochs++<this->epochs)
     {
-        for(int i = 0; i<(int)out.size();i++)
-            randIndex.push_back(i);
-        for(int i = 0; i < (int)out.size()&&randIndex.size();i++)
+        for(int i = 0; i < dataSize;i++)
         {
-            answer = VectorXd::Zero(layers[_size-1].size());
-            at = rand()%randIndex.size();
-            index = randIndex[at];
-            classification(in[index]);
-            answer[out[index]] = 1.0;
-            randIndex.erase(randIndex.begin()+at);
-            backpropagation(answer-layers[_size-1]);
+            index = randIndex();
+            classification(data.in[index]);
+            backpropagation(data.answer[index]-layers[_size-1]);
         }
-        acc = accuracy(in,out);
+        acc = accuracy();
         if(acc>maxAccuracy)
             initializevalues();
+        cout << "Accuracy: " << acc<<endl;
     }
-    cout << "Accuracy: "<<acc << endl;
-    cout << "Epochs: "<<epochs << endl;
+    cout << "End Accuracy: " << acc<<endl;
+    cout << "Epochs: " << epochs << endl;
+}
+
+int MLP::randIndex()
+{
+    int at,index;
+    if(!randIndexVector.size())
+        for(int i = 0; i<(int)data.answer.size();i++)
+            randIndexVector.push_back(i);
+    at = rand()%randIndexVector.size();
+    index = randIndexVector[at];
+    randIndexVector.erase(randIndexVector.begin()+at);
+    return index;
 }
 
 int MLP::classify(VectorXd data)
@@ -116,12 +119,12 @@ void MLP::initializevalues(vector<int> cfg)
     }
 }
 
-double MLP::accuracy(vector<VectorXd> in, vector<int> out)
+double MLP::accuracy()
 {
     double hit = 0;
-    int n = out.size();
+    int n = data.answer.size();
     for(int i = 0; i < n;i++)
-        if(classify(in[i])==out[i])
+        if(data.answer[i][classify(data.in[i])])
             hit++;
     return hit/(double)n;
 }
@@ -133,11 +136,14 @@ VectorXd MLP::activation(VectorXd l,bool der)
     return l;
 }
 
-void MLP::openDatabase(string path,vector<VectorXd> &x, vector<int> &y)
+void MLP::openDatabase(string path)
 {
     QFile file(QString::fromStdString(path));
     if(file.open(QIODevice::ReadOnly|QIODevice::Text))
     {
+        vector<VectorXd> x;
+        vector<int> y;
+        VectorXd answer;
         QStringList row;
         vector<QString> list;
         QString line;
@@ -174,5 +180,13 @@ void MLP::openDatabase(string path,vector<VectorXd> &x, vector<int> &y)
             }
         }
         file.close();
+        dataSize = y.size();
+        for(int i = 0; i < dataSize;i++)
+        {
+            answer = VectorXd::Zero(layers[_size-1].size());
+            answer[y[i]] = 1;
+            data.answer.push_back(answer);
+            data.in.push_back(x[i]);
+        }
     }
 }
