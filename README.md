@@ -18,7 +18,7 @@ Example 1:
 //MLP *nn = new MLP(conf,path,lr,epochs,min,max);
 MLP *nn = new MLP({4,3,3},"iris.csv",0.001,1000,0.8,0.9);
 ```
-The configuration and the path to dataset is required, but the others not.
+The configuration and the path to dataset are required, but the others aren't.
 
 Example 2:
 ``` C++
@@ -26,4 +26,4 @@ MLP *nn = new MLP({4,3,3},"iris.csv");
 ```
 By default, learningRate is 0.001, epochs is 100000, minAcurracy is 0.8 and the maximun accuracy is 0.9
 
-If you need help to use that, you can send an E-mail for me -> marco2000carvalho@gmail.com
+If you need help, you can send me an E-mail at: marco2000carvalho@gmail.com
