@@ -2,8 +2,9 @@
 #define MLP_H
 #include <eigen3/Eigen/Dense>
 #include <vector>
-#include <QFile>
-#include <QTextStream>
+#include <QtCore/QTextStream>
+#include <QtCore/QFile>
+#include <QtCore/QString>
 #include <iostream>
 
 using namespace std;
@@ -18,6 +19,7 @@ typedef struct Data
 class MLP
 {
 private:
+    vector<int>cfg;
     int epochs;
     int _size;
     int dataSize;
@@ -34,13 +36,12 @@ private:
     void forward();
     void backpropagation(VectorXd delta);
     void initializevalues();
-    void initializevalues(vector<int>cfg);
-    void openDatabase(string path);
-    void fit(string path);
+    void openDatabase(QString path);
+    void fit(QString path);
     int randIndex();
     Data data;
 public:
-    MLP(vector<int> cfg,string path,double lr = 0.001,int epochs = 100000,double minAccuracy = 0.8,double maxAccuracy = 0.9);
+    MLP(vector<int> cfg,QString path,double lr = 0.001,int epochs = 100000,double minAccuracy = 0.8,double maxAccuracy = 0.9);
     int classify(VectorXd data);
 };
 

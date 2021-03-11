@@ -1,16 +1,17 @@
 #include "mlp.h"
 
-MLP::MLP(vector<int> cfg,string path, double lr, int epochs,double minAccuracy,double maxAccuracy)
+MLP::MLP(vector<int> cfg,QString path, double lr, int epochs,double minAccuracy,double maxAccuracy)
 {
     this->minAccuracy = minAccuracy;
     this->maxAccuracy = maxAccuracy;
     this->learningRate = lr;
     this->epochs = epochs;
-    initializevalues(cfg);
+    this->cfg = cfg;
+    initializevalues();
     this->fit(path);
 }
 
-void MLP::fit(string path_file)
+void MLP::fit(QString path_file)
 {
     openDatabase(path_file);
     int index,epochs = 0;
@@ -93,15 +94,6 @@ void MLP::backpropagation(VectorXd error)
 
 void MLP::initializevalues()
 {
-    vector<int>cfg;
-    cfg.push_back(weights[0].rows());
-    for(int i = 0; i < (int)weights.size();i++)
-        cfg.push_back(weights[i].cols());
-    initializevalues(cfg);
-}
-
-void MLP::initializevalues(vector<int> cfg)
-{
     _size = cfg.size();
     weights.clear();
     bias.clear();
@@ -137,18 +129,19 @@ VectorXd MLP::activation(VectorXd l,bool der)
     return l;
 }
 
-void MLP::openDatabase(string path)
+void MLP::openDatabase(QString path)
 {
-    QFile *file = new QFile(QString::fromStdString(path));
+    QFile *file = new QFile(path);
     file->open(QIODevice::ReadOnly|QIODevice::Text);
     if(file->isOpen())
     {
-        QStringList row;
+        QStringList row,list;
         QString line;
         QTextStream in(file);
-        vector<Eigen::VectorXd> in;
-        vector<int> out;
+        vector<Eigen::VectorXd> x;
+        vector<int> y;
         Eigen::VectorXd answer,v;
+        in.readLine();
         while (!in.atEnd())
         {
             row.clear();
@@ -157,17 +150,18 @@ void MLP::openDatabase(string path)
             v = Eigen::VectorXd(row.size()-1);
             for(int i = 0; i < row.size()-1;i++)
                 v[i] = row[i].toDouble();
-            in.push_back(v);
-            out.push_back((row[row.size()-1]).toInt());
+            x.push_back(v);
+            y.push_back((row[row.size()-1]).toInt());
         }
         file->close();
-        for(int i = 0; i < (int)in.size();i++)
+        for(int i = 0; i < (int)x.size();i++)
         {
             answer = Eigen::VectorXd::Zero(layers[_size-1].size());
-            answer[out[i]] = 1;
+            answer[y[i]] = 1;
             data.answer.push_back(answer);
-            data.in.push_back(in[i]);
+            data.in.push_back(x[i]);
         }
+        dataSize = x.size();
     }
     delete file;
 }
