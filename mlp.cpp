@@ -131,6 +131,7 @@ double MLP::accuracy()
 
 VectorXd MLP::activation(VectorXd l,bool der)
 {
+    //sigmoid function
     for(int i = 0; i < l.size();i++)
         l[i] = der?(l[i]*(1.0 - l[i])):1.0/(1.0 + expf(-l[i]));//sigmoid
     return l;
@@ -138,55 +139,35 @@ VectorXd MLP::activation(VectorXd l,bool der)
 
 void MLP::openDatabase(string path)
 {
-    QFile file(QString::fromStdString(path));
-    if(file.open(QIODevice::ReadOnly|QIODevice::Text))
+    QFile *file = new QFile(QString::fromStdString(path));
+    file->open(QIODevice::ReadOnly|QIODevice::Text);
+    if(file->isOpen())
     {
-        vector<VectorXd> x;
-        vector<int> y;
-        VectorXd answer;
         QStringList row;
-        vector<QString> list;
         QString line;
-        int index = 0;
-        QTextStream in(&file);
-        in.readLine();
+        QTextStream in(file);
+        vector<Eigen::VectorXd> in;
+        vector<int> out;
+        Eigen::VectorXd answer,v;
         while (!in.atEnd())
         {
             row.clear();
             line = in.readLine();
             row = line.split(",");
-
-            VectorXd v(row.size()-1);
+            v = Eigen::VectorXd(row.size()-1);
             for(int i = 0; i < row.size()-1;i++)
                 v[i] = row[i].toDouble();
-            if(v.size())
-            {
-                x.push_back(v);
-                index = -1;
-                for(int i = 0; i < (int)list.size();i++)
-                {
-                    if(list[i]==row[row.size()-1])
-                    {
-                        index = i;
-                        break;
-                    }
-                }
-                if(index == -1)
-                {
-                    index = list.size();
-                    list.push_back(row[row.size()-1]);
-                }
-                y.push_back(index);
-            }
+            in.push_back(v);
+            out.push_back((row[row.size()-1]).toInt());
         }
-        file.close();
-        dataSize = y.size();
-        for(int i = 0; i < dataSize;i++)
+        file->close();
+        for(int i = 0; i < (int)in.size();i++)
         {
-            answer = VectorXd::Zero(layers[_size-1].size());
-            answer[y[i]] = 1;
+            answer = Eigen::VectorXd::Zero(layers[_size-1].size());
+            answer[out[i]] = 1;
             data.answer.push_back(answer);
-            data.in.push_back(x[i]);
+            data.in.push_back(in[i]);
         }
     }
+    delete file;
 }
