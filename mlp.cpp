@@ -83,10 +83,10 @@ void MLP::backpropagation(VectorXd error)
         n_delta = VectorXd::Zero(layers[i-1].size());
         for(int j = 0; j < layers[i-1].size();j++)
             for(int k = 0; k < layers[i].size();k++)
+            {
                 n_delta[j] += delta[k]*weights[i-1].coeff(j,k);
-        for(int j = 0; j < layers[i-1].size();j++)
-            for(int k = 0; k < layers[i].size();k++)
                 weights[i-1].coeffRef(j,k) -= learningRate * delta [k] * values [i-1] [j];
+            }
         bias [i-1] -= learningRate * delta;
         delta = n_delta;
     }
